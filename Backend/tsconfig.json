@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                // Specify ECMAScript target version.
+    "module": "ESNext",                // Use ES modules.
+    "rootDir": "./src",                // Specify the root directory of TypeScript files.
+    "outDir": "./dist",                // Specify the output directory for compiled JavaScript.
+    "esModuleInterop": true,           // Enables ES6-style imports in CommonJS modules.
+    "strict": true,                    // Enable strict type checking.
+    "moduleResolution": "node",        // Ensure TypeScript understands how to resolve node_modules.
+    "skipLibCheck": true,              // Skip type checking of declaration files.
+    "forceConsistentCasingInFileNames": true, // Prevent case-sensitive file name issues.
+    "types": ["node", "express"]       // Include types for node and express
+  },
+  "include": ["src"],                   // Include all files in the 'src' directory.
+  "exclude": ["node_modules"]           // Exclude node_modules folder.
+}
