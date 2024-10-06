@@ -9,8 +9,8 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "express", "./src/types"] // Include your custom types folder here
+    "types": ["node", "express"] // Include your custom types folder here
   },
-  "include": ["src", "types", "types"], // Include your custom types folder
+  "include": ["src", "types"], // Include your custom types folder
   "exclude": ["node_modules"]
 }
