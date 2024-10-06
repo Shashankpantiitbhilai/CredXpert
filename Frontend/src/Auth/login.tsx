@@ -45,10 +45,20 @@ function Login() {
       console.log(response);
       if (response?.user) {
         const user = response.user;
-        if (user) {
+        if (user?.role==="user") {
           setUser(user);
           toast.success("Login successful", { autoClose: 2000 });
           navigate("/");
+        }
+           if (user?.role==="verifier") {
+          setUser(user);
+          toast.success("Login successful", { autoClose: 2000 });
+          navigate("/verifier-dashboard");
+        }
+           if (user?.role==="admin") {
+          setUser(user);
+          toast.success("Login successful", { autoClose: 2000 });
+          navigate("/admin-dashboard");
         }
       } else if (response?.status === 401) {
         setError("email", { type: "manual", message: "Invalid credentials" });

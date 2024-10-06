@@ -33,7 +33,10 @@ interface LoanApplicationResponse {
   message: string;
   loanId: string;
 }
-
+interface ReviewLoanResponse {
+  message: string;
+  loan: Loan; 
+}
 const baseURL =
   import.meta.env.VITE_NODE_ENV === "production"
     ? import.meta.env.VITE_BACKEND_PROD
@@ -66,5 +69,24 @@ export const getAllLoans = async (userId: string): Promise<GetAllLoansResponse> 
   } catch (error) {
     console.error('Error fetching loans:', error);
     throw error;
+  }
+};
+export const getAllApplications = async (): Promise<GetAllLoansResponse> => {
+  try {
+    const response = await axiosInstance.get(`/getAllLoans`);
+    return response.data as GetAllLoansResponse; // Ensure the response type matches
+  } catch (error) {
+    console.error('Error fetching loans:', error);
+    throw error;
+  }
+};
+export const reviewLoan = async (loanId: string, status: string): Promise<ReviewLoanResponse> => {
+  try {
+    console.log(loanId,"loanid")
+    const response = await axiosInstance.patch('/review-loan', { loanId, status });
+    return response.data as ReviewLoanResponse; // Return the response data with the correct type
+  } catch (error) {
+    console.error('Error reviewing loan:', error);
+    throw error; // Rethrow the error for handling in the component
   }
 };

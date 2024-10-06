@@ -64,3 +64,66 @@ export const getLoansByUserId = async (req: Request, res: Response): Promise<voi
     });
   }
 };
+
+
+
+
+export const getAllLoans = async (req: Request, res: Response): Promise<void> => {
+    try {
+       
+        const loans = await LoanModel.find();
+        console.log(loans);
+
+        if (loans.length === 0) {
+            res.status(404).json({
+                message: 'No loan applications found for this user.',
+            });
+            return;
+        }
+        else {
+            res.status(200).json({
+                message: 'Loan applications retrieved successfully.',
+                loans,
+            });
+        }
+    } catch (error) {
+    console.error('Error fetching loans:', error);
+    res.status(500).json({
+      message: 'An error occurred while fetching loan applications.',
+    });
+  }
+};
+
+
+
+export const reviewLoan = async (req: Request, res: Response): Promise<void> => {
+  const { loanId, status } = req.body; // Extract loanId and status from request body
+
+
+  try {
+    // Find the loan application by ID and update its status
+    const updatedLoan = await LoanModel.findByIdAndUpdate(
+      loanId,
+      { status },
+      { new: true, runValidators: true } // Return the updated document
+    );
+
+  
+
+    // Check if the loan was found and updated
+    if (!updatedLoan) {
+      // Simply call the response without returning it
+      res.status(404).json({ message: 'Loan application not found.' });
+      return; // Exit the function after sending the response
+    }
+
+    // If loan is found and updated
+    res.status(200).json({
+      message: 'Loan application reviewed successfully.',
+      loan: updatedLoan, // Return the updated loan
+    });
+  } catch (error) {
+    console.error('Error reviewing loan:', error);
+    res.status(500).json({ message: 'An error occurred while reviewing the loan.' });
+  }
+};

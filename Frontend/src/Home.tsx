@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import  { useState, useContext } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -29,6 +29,8 @@ import {
   Info,
   ContactSupport,
 } from '@mui/icons-material';
+import { logoutUser } from './services/auth';
+import { AdminContext } from './App';
 
 const theme = createTheme({
   palette: {
@@ -44,20 +46,33 @@ const theme = createTheme({
   },
 });
 
-const Homepage = () => {
+// Define a type for the user context
+interface User {
+  role: 'user' | 'admin' | 'verifier';
+}
+
+const Homepage: React.FC = () => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useContext(AdminContext) as { user: User }; // Use casting to specify the context type
 
   const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-  if (event instanceof KeyboardEvent && (event.key === 'Tab' || event.key === 'Shift')) {
-    return;
-  }
-  setDrawerOpen(open);
-};
+    if (event instanceof KeyboardEvent && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    setDrawerOpen(open);
+  };
 
   const navItems = [
     { text: 'Home', icon: <Home />, link: '/' },
-    { text: 'Dashboard', icon: <Dashboard />, link: '/userDashboard' },
+    {
+      text: 'Dashboard',
+      icon: <Dashboard />,
+      link: user?.role === 'admin' ? '/admin-dashboard' :
+            user?.role === 'verifier' ? '/verifier-dashboard' : 
+            '/userDashboard', // Default to user dashboard
+    },
     { text: 'Apply', icon: <AttachMoney />, link: '/apply' },
     { text: 'About', icon: <Info />, link: '/about' },
     { text: 'Contact', icon: <ContactSupport />, link: '/contact' },
@@ -72,10 +87,10 @@ const Homepage = () => {
     >
       <List>
         {navItems.map((item) => (
-          <ListItem 
-            key={item.text} 
-            component={RouterLink} 
-            to={item.link} 
+          <ListItem
+            key={item.text}
+            component={RouterLink}
+            to={item.link}
             sx={{ cursor: 'pointer' }}
           >
             <ListItemIcon>{item.icon}</ListItemIcon>
@@ -86,12 +101,22 @@ const Homepage = () => {
     </Box>
   );
 
+  const handleLogout = async () => {
+    const success = await logoutUser();
+    if (success) {
+      console.log('Logout successful');
+      navigate('/login'); // Redirect to login page or home page
+    } else {
+      console.log('Logout failed');
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
         minHeight: '100vh',
         bgcolor: 'background.default',
         width: '100%',
@@ -123,6 +148,12 @@ const Homepage = () => {
                 {item.text}
               </Button>
             ))}
+            <Button
+              color="inherit"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
           </Toolbar>
         </AppBar>
 
@@ -134,11 +165,11 @@ const Homepage = () => {
           {drawer}
         </Drawer>
 
-        <Container component="main" maxWidth={false} sx={{ 
-          mt: { xs: 4, sm: 8 }, 
-          mb: 2, 
-          flexGrow: 1, 
-          display: 'flex', 
+        <Container component="main" maxWidth={false} sx={{
+          mt: { xs: 4, sm: 8 },
+          mb: 2,
+          flexGrow: 1,
+          display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           width: '100%',
@@ -151,11 +182,11 @@ const Homepage = () => {
             Your trusted platform for seamless personal loans.
           </Typography>
 
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', md: 'row' }, 
-            gap: 4, 
-            width: '100%', 
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 4,
+            width: '100%',
             justifyContent: 'center',
             mb: 6,
           }}>
@@ -197,7 +228,7 @@ const Homepage = () => {
                   size="large"
                   startIcon={<Dashboard />}
                   component={RouterLink}
-                  to="/dashboard"
+                  to={user?.role === 'admin' ? '/admin-dashboard' : user?.role === 'verifier' ? '/verifier-dashboard' : '/userDashboard'}
                   variant="contained"
                   color="secondary"
                   fullWidth
@@ -213,7 +244,7 @@ const Homepage = () => {
                   Learn More
                 </Typography>
                 <Typography variant="body2" color="text.secondary" align="center">
-                  Discover how CreditSea can help you achieve your financial goals.
+                  Find out more about our services and how we can help you.
                 </Typography>
               </CardContent>
               <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
@@ -222,7 +253,7 @@ const Homepage = () => {
                   startIcon={<Info />}
                   component={RouterLink}
                   to="/about"
-                  variant="outlined"
+                  variant="contained"
                   color="primary"
                   fullWidth
                 >
@@ -230,18 +261,6 @@ const Homepage = () => {
                 </Button>
               </CardActions>
             </Card>
-          </Box>
-
-          <Box sx={{ width: '100%', maxWidth: '800px', mb: 6 }}>
-            <Typography variant="h4" gutterBottom align="center">
-              Why Choose CreditSea?
-            </Typography>
-            <Typography variant="body1" paragraph align="center">
-              CreditSea offers competitive rates, flexible terms, and a seamless online application process. Our dedicated team is committed to helping you find the right loan solution to meet your financial needs.
-            </Typography>
-            <Typography variant="body1" paragraph align="center">
-              Experience hassle-free borrowing with personalized support at every step.
-            </Typography>
           </Box>
         </Container>
       </Box>

@@ -5,7 +5,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { styled } from "@mui/system";
 import { useNavigate } from "react-router-dom";
-
+import { AdminContext } from "../App";
+import { useContext } from "react";
 // Define an interface for form data
 interface RegistrationFormData {
   email: string;
@@ -35,13 +36,17 @@ function Registration() {
   const { errors } = formState;
   const navigate = useNavigate();
 
+const { setUser } = useContext(AdminContext);
   // Define the onSubmit function with proper typing
   const onSubmit: SubmitHandler<RegistrationFormData> = async (data) => {
     try {
       const response = await registerUser(data.email, data.password);
       console.log(response);
       // Handle based on backend response status
-      if (response?.status === 201) {
+        if (response?.user) {
+        const user = response.user;
+        
+          setUser(user);
         toast.success("Registration successful", { autoClose: 2000 });
         navigate("/"); // Redirect to login after successful registration
       } else if (response?.status === 400) {

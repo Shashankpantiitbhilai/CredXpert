@@ -4,11 +4,17 @@ import passportLocalMongoose from 'passport-local-mongoose';
 
 interface IUser extends Document {
   email: string;
-  password: string;
+  password: string; // Password will be handled by the plugin
+  role: 'user' | 'admin' | 'verifier'; // Define the role types
 }
 
 const UserSchema: Schema = new Schema({
   email: { type: String, required: true, unique: true },
+  role: { 
+    type: String, 
+    enum: ['user', 'admin', 'verifier'], // Specify allowed values
+    default: 'user' // Set default role to 'user'
+  },
 }, {
   timestamps: true
 });

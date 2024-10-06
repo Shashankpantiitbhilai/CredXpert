@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 interface User {
+  role: string;
   _id: string;
   email: string;
   // Add other user fields as needed
@@ -37,11 +38,20 @@ export async function fetchCredentials() {
     return { message: 'Failed to fetch credentials' };
   }
 }
-
+export const logoutUser = async () => {
+  try {
+    await axiosInstance.post(`/auth/logout`, {}, { withCredentials: true });
+    // Optionally handle any additional state updates, e.g., clearing user data
+    return true; // Return true to indicate successful logout
+  } catch (error) {
+    console.error('Logout error:', error);
+    return false; // Return false to indicate logout failure
+  }
+};
 // Register User
 export async function registerUser(email: string, password: string): Promise<AuthResponse> {
   try {
-    const response: AxiosResponse<AuthResponse> = await axiosInstance.post("/auth/register", {
+    const response = await axiosInstance.post("/auth/register", {
       email,
       password,
     });
