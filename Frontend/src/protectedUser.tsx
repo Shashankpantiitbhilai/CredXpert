@@ -8,10 +8,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { IsUserLoggedIn } = useContext(AdminContext);
-  console.log(IsUserLoggedIn, "isuserloggedin for user");
+  const { user} = useContext(AdminContext);
+  console.log(user, "user for user");
 
-  if (!IsUserLoggedIn) {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 

@@ -28,6 +28,12 @@ interface GetAllLoansResponse {
   loans: Loan[];
 }
 
+// Type for the loan application response, modify based on your API response
+interface LoanApplicationResponse {
+  message: string;
+  loanId: string;
+}
+
 const baseURL =
   import.meta.env.NODE_ENV === "production"
     ? import.meta.env.VITE_BACKEND_PROD
@@ -42,10 +48,10 @@ const axiosInstance = axios.create({
 });
 
 // Function to submit a loan application
-export const submitLoanApplication = async (loanData: LoanData): Promise<any> => {
+export const submitLoanApplication = async (loanData: LoanData): Promise<LoanApplicationResponse> => {
   try {
     const response = await axiosInstance.post('/loan-application', loanData);
-    return response.data; // Ensure the return type is handled appropriately
+    return response.data as LoanApplicationResponse; // Specify the return type
   } catch (error) {
     console.error('Error submitting loan application:', error);
     throw error;
@@ -55,9 +61,8 @@ export const submitLoanApplication = async (loanData: LoanData): Promise<any> =>
 // Function to get all loans
 export const getAllLoans = async (userId: string): Promise<GetAllLoansResponse> => {
   try {
-    console.log(userId, "userId");
     const response = await axiosInstance.get(`/getAllLoans/${userId}`);
-    return response.data; // Make sure this matches GetAllLoansResponse type
+    return response.data as GetAllLoansResponse; // Ensure the response type matches
   } catch (error) {
     console.error('Error fetching loans:', error);
     throw error;

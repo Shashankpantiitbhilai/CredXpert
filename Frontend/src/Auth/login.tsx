@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { styled } from "@mui/system";
 
+// Styled components using MUI's styled utility
 const LoginContainer = styled(Container)({
   display: "flex",
   justifyContent: "center",
@@ -25,26 +26,32 @@ const LoginForm = styled(Box)({
   textAlign: "center",
 });
 
+// Interface for the login form data
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 function Login() {
-  const form = useForm();
-  const { register, handleSubmit, formState, setError, clearErrors } = form;
+  const { register, handleSubmit, formState, setError, clearErrors } = useForm<LoginFormData>();
   const { errors } = formState;
   const { setUser } = useContext(AdminContext);
   const navigate = useNavigate();
 
-  const onSubmit = async (data) => {
+  // Handling the form submission
+  const onSubmit = async (data: LoginFormData) => {
     try {
       const response = await loginUser(data.email, data.password);
       console.log(response);
       if (response?.user) {
         const user = response.user;
-        if(user) {
+        if (user) {
           setUser(user);
           toast.success("Login successful", { autoClose: 2000 });
           navigate("/");
         }
       } else if (response?.status === 401) {
-        setError("login", { type: "manual", message: "Invalid credentials" });
+        setError("email", { type: "manual", message: "Invalid credentials" });
         toast.error("Invalid credentials", { autoClose: 2000 });
       } else {
         toast.error("An unknown error occurred", { autoClose: 2000 });
@@ -54,7 +61,7 @@ function Login() {
       toast.error("An error occurred during login", { autoClose: 2000 });
     } finally {
       setTimeout(() => {
-        clearErrors("login");
+        clearErrors("email");
       }, 2000);
     }
   };
@@ -68,6 +75,7 @@ function Login() {
             Sign In
           </Typography>
 
+          {/* Email field with validation */}
           <TextField
             fullWidth
             label="Email"
@@ -80,9 +88,10 @@ function Login() {
               },
             })}
             error={!!errors.email}
-            helperText={errors.email?.message}
+            helperText={errors.email?.message as string | undefined}
           />
 
+          {/* Password field with validation */}
           <TextField
             fullWidth
             label="Password"
@@ -100,12 +109,8 @@ function Login() {
               },
             })}
             error={!!errors.password}
-            helperText={errors.password?.message}
+            helperText={errors.password?.message as string | undefined}
           />
-
-          {errors.login && (
-            <Typography color="error">{errors.login.message}</Typography>
-          )}
 
           <Button
             type="submit"

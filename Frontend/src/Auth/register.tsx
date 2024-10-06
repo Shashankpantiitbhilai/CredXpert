@@ -59,55 +59,58 @@ function Registration() {
   return (
     <RegistrationContainer>
       <ToastContainer />
-      <RegistrationForm component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Typography variant="h4" gutterBottom>
-          Register
-        </Typography>
+      <RegistrationForm>
+        {/* Use a native form tag instead of passing 'as="form"' */}
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <Typography variant="h4" gutterBottom>
+            Register
+          </Typography>
 
-        <TextField
-          fullWidth
-          label="Email"
-          margin="normal"
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-              message: "Invalid email address",
-            },
-          })}
-          error={!!errors.email}
-          helperText={errors.email?.message}
-        />
+          <TextField
+            fullWidth
+            label="Email"
+            margin="normal"
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                message: "Invalid email address",
+              },
+            })}
+            error={!!errors.email}
+            helperText={errors.email?.message}
+          />
 
-        <TextField
-          fullWidth
-          label="Password"
-          type="password"
-          margin="normal"
-          {...register("password", {
-            required: "Password is required",
-            minLength: {
-              value: 8,
-              message: "Password must be at least 8 characters",
-            },
-            maxLength: {
-              value: 16,
-              message: "Password must not exceed 16 characters",
-            },
-          })}
-          error={!!errors.password}
-          helperText={errors.password?.message}
-        />
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            margin="normal"
+            {...register("password", {
+              required: "Password is required",
+              minLength: {
+                value: 8,
+                message: "Password must be at least 8 characters",
+              },
+              maxLength: {
+                value: 16,
+                message: "Password must not exceed 16 characters",
+              },
+            })}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+          />
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2 }}
-        >
-          Register
-        </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Register
+          </Button>
+        </form>
       </RegistrationForm>
     </RegistrationContainer>
   );

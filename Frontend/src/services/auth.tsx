@@ -27,10 +27,10 @@ const axiosInstance = axios.create({
 });
 
 // Fetch Credentials
-export async function fetchCredentials(): Promise<AuthResponse> {
+export async function fetchCredentials() {
   try {
-    const response: AxiosResponse<AuthResponse> = await axiosInstance.get("/auth/fetch-auth");
-    console.log(response, "response");
+    const response = await axiosInstance.get("/auth/fetch-auth");
+    console.log(response.data, "response");
     return response.data;
   } catch (error) {
     console.error('Error fetching credentials:', error);

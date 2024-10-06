@@ -23,8 +23,9 @@ function App() {
   useEffect(() => {
     setIsLoading(true);
     fetchCredentials().then((response) => {
-      if (response.user) {
-        setUser(response.user);
+      if (response) {
+        console.log(response)
+        setUser(response);
       }
       setIsLoading(false);
     });

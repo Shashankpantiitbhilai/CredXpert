@@ -48,12 +48,12 @@ const Homepage = () => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const toggleDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
-    setDrawerOpen(open);
-  };
+  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+  if (event instanceof KeyboardEvent && (event.key === 'Tab' || event.key === 'Shift')) {
+    return;
+  }
+  setDrawerOpen(open);
+};
 
   const navItems = [
     { text: 'Home', icon: <Home />, link: '/' },
@@ -72,7 +72,12 @@ const Homepage = () => {
     >
       <List>
         {navItems.map((item) => (
-          <ListItem button key={item.text} component={RouterLink} to={item.link}>
+          <ListItem 
+            key={item.text} 
+            component={RouterLink} 
+            to={item.link} 
+            sx={{ cursor: 'pointer' }}
+          >
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>
@@ -232,18 +237,13 @@ const Homepage = () => {
               Why Choose CreditSea?
             </Typography>
             <Typography variant="body1" paragraph align="center">
-              CreditSea offers competitive rates, flexible terms, and a seamless online application process. Our dedicated team is committed to helping you find the right loan solution for your needs.
+              CreditSea offers competitive rates, flexible terms, and a seamless online application process. Our dedicated team is committed to helping you find the right loan solution to meet your financial needs.
+            </Typography>
+            <Typography variant="body1" paragraph align="center">
+              Experience hassle-free borrowing with personalized support at every step.
             </Typography>
           </Box>
         </Container>
-
-        <Box component="footer" sx={{ mt: 'auto', bgcolor: 'background.paper', py: 6, width: '100%' }}>
-          <Container maxWidth="lg">
-            <Typography variant="body2" color="text.secondary" align="center">
-              © 2024 CreditSea. All rights reserved.
-            </Typography>
-          </Container>
-        </Box>
       </Box>
     </ThemeProvider>
   );

@@ -57,8 +57,8 @@ const LoanApplicationForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const { IsUserLoggedIn } = useContext(AdminContext);
-  const userId = IsUserLoggedIn?._id || '';
+  const { user } = useContext(AdminContext);
+  const userId = user?._id || '';
 
   const onSubmit = async (data: LoanApplicationData) => {
     setLoading(true);
