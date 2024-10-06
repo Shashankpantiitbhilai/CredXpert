@@ -9,3 +9,9 @@ export type Loan = {
   loanTenure: number;
   employmentStatus: string;
 };
+export type User = {
+  _id: string;
+  email: string;
+role:string
+  
+};

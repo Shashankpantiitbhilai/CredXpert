@@ -1,54 +1,30 @@
-import { Button, TextField, Container, Box, Typography } from "@mui/material";
+import { Button, TextField, Container, Box, Typography, Paper, Avatar, Link } from "@mui/material";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useForm, SubmitHandler } from "react-hook-form";
-import { registerUser } from "../services/auth"; // Ensure this function is correctly typed
+import { registerUser } from "../services/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { styled } from "@mui/system";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../App";
 import { useContext } from "react";
-// Define an interface for form data
+
 interface RegistrationFormData {
   email: string;
   password: string;
 }
 
-const RegistrationContainer = styled(Container)(() => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "100vh",
-}));
-
-const RegistrationForm = styled(Box)(() => ({
-  width: "100%",
-  maxWidth: "400px",
-  padding: "20px",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  borderRadius: "8px",
-  backgroundColor: "#fff",
-  textAlign: "center",
-}));
-
 function Registration() {
-  const form = useForm<RegistrationFormData>(); // Specify the form data type
-  const { register, handleSubmit, formState, setError } = form;
-  const { errors } = formState;
+  const { register, handleSubmit, formState: { errors }, setError } = useForm<RegistrationFormData>();
   const navigate = useNavigate();
+  const { setUser } = useContext(AdminContext);
 
-const { setUser } = useContext(AdminContext);
-  // Define the onSubmit function with proper typing
   const onSubmit: SubmitHandler<RegistrationFormData> = async (data) => {
     try {
       const response = await registerUser(data.email, data.password);
-      console.log(response);
-      // Handle based on backend response status
-        if (response?.user) {
-        const user = response.user;
-        
-          setUser(user);
+      if (response?.user) {
+        setUser(response.user);
         toast.success("Registration successful", { autoClose: 2000 });
-        navigate("/"); // Redirect to login after successful registration
+        navigate("/");
       } else if (response?.status === 400) {
         setError("email", { type: "manual", message: response.message });
         toast.error(response?.message, { autoClose: 2000 });
@@ -62,19 +38,24 @@ const { setUser } = useContext(AdminContext);
   };
 
   return (
-    <RegistrationContainer>
+    <Container component="main" maxWidth="xs">
       <ToastContainer />
-      <RegistrationForm>
-        {/* Use a native form tag instead of passing 'as="form"' */}
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Typography variant="h4" gutterBottom>
-            Register
-          </Typography>
-
+      <Paper elevation={6} sx={{ mt: 8, p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <PersonAddIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5" gutterBottom>
+          Register
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1, width: '100%' }}>
           <TextField
-            fullWidth
-            label="Email"
             margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            autoComplete="email"
+            autoFocus
             {...register("email", {
               required: "Email is required",
               pattern: {
@@ -85,12 +66,14 @@ const { setUser } = useContext(AdminContext);
             error={!!errors.email}
             helperText={errors.email?.message}
           />
-
           <TextField
+            margin="normal"
+            required
             fullWidth
             label="Password"
             type="password"
-            margin="normal"
+            id="password"
+            autoComplete="new-password"
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -105,19 +88,23 @@ const { setUser } = useContext(AdminContext);
             error={!!errors.password}
             helperText={errors.password?.message}
           />
-
           <Button
             type="submit"
-            variant="contained"
-            color="primary"
             fullWidth
-            sx={{ mt: 2 }}
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
           >
             Register
           </Button>
-        </form>
-      </RegistrationForm>
-    </RegistrationContainer>
+          <Typography variant="body2" align="center">
+            Already have an account? 
+            <Link href="/login" variant="body2" sx={{ ml: 1 }}>
+              Login
+            </Link>
+          </Typography>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 

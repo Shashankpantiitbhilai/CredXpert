@@ -1,32 +1,13 @@
 import { useContext } from "react";
 import { AdminContext } from "../App";
-import { Button, TextField, Container, Box, Typography } from "@mui/material";
+import { Button, TextField, Container, Box, Typography, Paper, Avatar, Link as MuiLink } from "@mui/material";
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { loginUser } from "../services/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { styled } from "@mui/system";
 
-// Styled components using MUI's styled utility
-const LoginContainer = styled(Container)({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "100vh",
-});
-
-const LoginForm = styled(Box)({
-  width: "100%",
-  maxWidth: "400px",
-  padding: "20px",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  borderRadius: "8px",
-  backgroundColor: "#fff",
-  textAlign: "center",
-});
-
-// Interface for the login form data
 interface LoginFormData {
   email: string;
   password: string;
@@ -38,28 +19,14 @@ function Login() {
   const { setUser } = useContext(AdminContext);
   const navigate = useNavigate();
 
-  // Handling the form submission
   const onSubmit = async (data: LoginFormData) => {
     try {
       const response = await loginUser(data.email, data.password);
-      console.log(response);
       if (response?.user) {
         const user = response.user;
-        if (user?.role==="user") {
-          setUser(user);
-          toast.success("Login successful", { autoClose: 2000 });
-          navigate("/");
-        }
-           if (user?.role==="verifier") {
-          setUser(user);
-          toast.success("Login successful", { autoClose: 2000 });
-          navigate("/verifier-dashboard");
-        }
-           if (user?.role==="admin") {
-          setUser(user);
-          toast.success("Login successful", { autoClose: 2000 });
-          navigate("/admin-dashboard");
-        }
+        setUser(user);
+        toast.success("Login successful", { autoClose: 2000 });
+        navigate(user.role === "user" ? "/" : `/${user.role}-dashboard`);
       } else if (response?.status === 401) {
         setError("email", { type: "manual", message: "Invalid credentials" });
         toast.error("Invalid credentials", { autoClose: 2000 });
@@ -70,26 +37,29 @@ function Login() {
       console.error("Login error:", error);
       toast.error("An error occurred during login", { autoClose: 2000 });
     } finally {
-      setTimeout(() => {
-        clearErrors("email");
-      }, 2000);
+      setTimeout(() => clearErrors("email"), 2000);
     }
   };
 
   return (
-    <LoginContainer>
+    <Container component="main" maxWidth="xs">
       <ToastContainer />
-      <LoginForm>
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Typography variant="h4" gutterBottom>
-            Sign In
-          </Typography>
-
-          {/* Email field with validation */}
+      <Paper elevation={6} sx={{ mt: 8, p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5" gutterBottom>
+          Sign In
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1, width: '100%' }}>
           <TextField
-            fullWidth
-            label="Email"
             margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            autoComplete="email"
+            autoFocus
             {...register("email", {
               required: "Email is required",
               pattern: {
@@ -100,13 +70,14 @@ function Login() {
             error={!!errors.email}
             helperText={errors.email?.message as string | undefined}
           />
-
-          {/* Password field with validation */}
           <TextField
+            margin="normal"
+            required
             fullWidth
             label="Password"
             type="password"
-            margin="normal"
+            id="password"
+            autoComplete="current-password"
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -121,24 +92,23 @@ function Login() {
             error={!!errors.password}
             helperText={errors.password?.message as string | undefined}
           />
-
           <Button
             type="submit"
-            variant="contained"
-            color="primary"
             fullWidth
-            sx={{ mt: 2 }}
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
           >
             Sign In
           </Button>
-
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            Don't have an account?
-            <Link to="/register"> Register</Link>
+          <Typography variant="body2" align="center">
+            Don't have an account?{' '}
+            <MuiLink component={Link} to="/register" variant="body2">
+              Register
+            </MuiLink>
           </Typography>
         </Box>
-      </LoginForm>
-    </LoginContainer>
+      </Paper>
+    </Container>
   );
 }
 

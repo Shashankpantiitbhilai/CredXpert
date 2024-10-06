@@ -158,7 +158,7 @@ const VerifierDashboard = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ margin:5 }}>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6">Verifier Dashboard</Typography>

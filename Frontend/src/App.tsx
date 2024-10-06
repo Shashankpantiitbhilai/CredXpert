@@ -5,6 +5,7 @@ import Main from "./routes";
 import { fetchCredentials, AuthResponse } from "./services/auth";
 import { CircularProgress, Container } from "@mui/material";
 
+
 interface AdminContextType {
   user: AuthResponse['user'] | null;
   setUser: Dispatch<SetStateAction<AuthResponse['user'] | null>>;
@@ -47,7 +48,8 @@ function App() {
           <CircularProgress />
         </Container>
       ) : (
-        <BrowserRouter>
+          <BrowserRouter>
+          
           <Main />
         </BrowserRouter>
       )}

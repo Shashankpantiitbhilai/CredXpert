@@ -90,3 +90,40 @@ export const reviewLoan = async (loanId: string, status: string): Promise<Review
     throw error; // Rethrow the error for handling in the component
   }
 };
+
+export const getAllUsers = async (): Promise<any> => {
+  try {console.log("getallusers")
+    const response = await axiosInstance.get(`/getAllUsers`);
+    return response.data ; // Ensure the response type matches
+  } catch (error) {
+    console.error('Error fetching user information:', error);
+    throw error; // Rethrow the error for handling in the component
+  }
+};
+
+// Function to delete a user
+export const deleteUser = async (userId: string): Promise<{ message: string }> => {
+  try {
+    const response = await axiosInstance.delete(`/delete/${userId}`);
+    return response.data; // Assuming the response contains a message
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    throw error; // Rethrow the error for handling in the component
+  }
+};
+
+
+
+export const updateUserRole = async (userId: string, newRole: string) => {
+  try {
+    const response = await axiosInstance.patch(`editUser/${userId}`, { role: newRole });
+
+    // Handle success
+    console.log('User updated successfully:', response.data);
+    return response.data; // Return the updated user data
+  } catch (error) {
+    // Handle errors
+    console.error('Error updating user role:');
+    throw error; // Re-throw the error for further handling if needed
+  }
+};
