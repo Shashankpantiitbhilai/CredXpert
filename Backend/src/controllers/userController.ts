@@ -59,7 +59,7 @@ export const logoutUser = (req: Request, res: Response, next: NextFunction): voi
   });
 };
 export const fetchAuth = (req: Request, res: Response): void => {
-  
+  console.log(req.user)
   if (req.isAuthenticated()) {
     res.json(req.user); // If authenticated, return user object
   } else {
