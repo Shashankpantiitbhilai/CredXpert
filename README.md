@@ -6,6 +6,7 @@ This project is a **Loan Manager Application** built for CreditSea's Full Stack 
 
 Check out the live application here: [https://creditsea2.onrender.com/](https://creditsea2.onrender.com/)
 
+
 ## 👤 User Roles and Access
 
 The application supports multiple user roles to enhance functionality and security. Below are the different user roles along with their access details:
@@ -14,16 +15,23 @@ The application supports multiple user roles to enhance functionality and securi
 
 1. **Admin**
    - **Email**: `admin@gmail.com`
+   - **Password**: `12345678`
    - **Access**: Full access to the application, including the ability to manage users, view all applications, and update application statuses.
 
 
 
 2. **Verifier**
    - **Email**: `verifier@gmail.com`
+   - **Password**: `12345678`
    - **Access**: Responsible for reviewing loan applications and updating their statuses (approved, rejected, pending).
 3. **User**
    - **Email**: `user@gmail.com`
+   - **Password**: `12345678`
    - **Access**: Can fill out and submit loan application forms. Limited access to view their submitted applications.
+### **Login Credentials**
+
+To access the application:
+- Use the provided email addresses and password to log in based on the role assigned. The system will direct users to their respective dashboards based on their roles.
 
 ### **Login Credentials**
 
