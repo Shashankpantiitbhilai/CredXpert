@@ -2,12 +2,12 @@ import express from 'express';
 import session from 'express-session';
 import passport from './config/passportConfig.js';
 import cors from 'cors';
-
 import bodyParser from 'body-parser';
 import userRoutes from './routes/login.js';
 import Routes from './routes/utils.js';
 import dotenv from 'dotenv';
 import { connectToDatabase } from './db/db.js';
+
 // Load environment variables from .env file
 dotenv.config();
 
@@ -30,26 +30,19 @@ app.use(cors({
 }));
 
 // Session handling
-if (mode === "production") {
-  app.use(session({
-    secret: process.env.SESSION_SECRET ||"keyboard cat", // Use environment variable for session secret
-    saveUninitialized: true, // Do not save uninitialized sessions
-    resave: false,
-    proxy: true,
-    cookie: {
-      secure: true, // Ensure cookies are only sent over HTTPS
-      httpOnly: true, // Cookies are not accessible via JavaScript
-      sameSite: 'none' // Allow cross-site cookies
-    }
-  }));
-}
-else {
-  app.use(session({
-    secret: process.env.SESSION_SECRET || "keyboard cat", // Use environment variable for session secret
-    saveUninitialized: true, // Do not save uninitialized sessions
-    resave: false,
-  }))
-}
+const sessionConfig: session.SessionOptions = {
+  secret: process.env.SESSION_SECRET || "keyboard cat",
+  saveUninitialized: true,
+  resave: false,
+  cookie: {
+    secure: mode === 'production', // Set secure cookie only in production
+    httpOnly: true,
+    sameSite: 'none', // Allow cross-site cookies
+  },
+};
+
+// Use session middleware
+app.use(session(sessionConfig));
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -57,9 +50,11 @@ app.use(passport.session());
 
 // MongoDB connection with error handling
 connectToDatabase();
+
 // Use the user routes
 app.use('/auth', userRoutes);
 app.use('/', Routes);
+
 // Sample route
 app.get('/', (req, res) => {
   res.send('Hello, World!');
