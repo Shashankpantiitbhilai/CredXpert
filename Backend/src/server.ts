@@ -2,7 +2,7 @@ import express from 'express';
 import session from 'express-session';
 import passport from './config/passportConfig.js';
 import cors from 'cors';
-import mongoose from 'mongoose';
+
 import bodyParser from 'body-parser';
 import userRoutes from './routes/login.js';
 import Routes from './routes/utils.js';

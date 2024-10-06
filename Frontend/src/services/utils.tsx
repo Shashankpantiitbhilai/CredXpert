@@ -35,7 +35,7 @@ interface LoanApplicationResponse {
 }
 
 const baseURL =
-  import.meta.env.NODE_ENV === "production"
+  import.meta.env.VITE_NODE_ENV === "production"
     ? import.meta.env.VITE_BACKEND_PROD
     : import.meta.env.VITE_BACKEND_DEV;
 

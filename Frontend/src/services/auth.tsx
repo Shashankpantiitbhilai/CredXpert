@@ -14,7 +14,7 @@ export interface AuthResponse {
 
 // Set baseURL for axios instance
 const baseURL =
-  import.meta.env.NODE_ENV === "production"
+  import.meta.env.VITE_NODE_ENV === "production"
     ? import.meta.env.VITE_BACKEND_PROD
     : import.meta.env.VITE_BACKEND_DEV;
 
