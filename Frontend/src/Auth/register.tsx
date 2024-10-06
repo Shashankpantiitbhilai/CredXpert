@@ -45,8 +45,8 @@ function Registration() {
         toast.success("Registration successful", { autoClose: 2000 });
         navigate("/"); // Redirect to login after successful registration
       } else if (response?.status === 400) {
-        setError("email", { type: "manual", message: response.data.message });
-        toast.error(response?.data?.message, { autoClose: 2000 });
+        setError("email", { type: "manual", message: response.message });
+        toast.error(response?.message, { autoClose: 2000 });
       } else {
         toast.error("An unknown error occurred", { autoClose: 2000 });
       }

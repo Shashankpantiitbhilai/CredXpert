@@ -1,4 +1,4 @@
-import React, { useState,useContext } from 'react';
+import  { useState, useContext } from 'react';
 import { 
   TextField, 
   Button, 
@@ -13,10 +13,37 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { submitLoanApplication } from '../services/utils'; // Adjust the path accordingly
 import { AdminContext } from '../App';
+
+// Define the LoanApplicationData interface
+interface LoanApplicationData {
+  userId: string;
+  fullName: string;
+  loanAmount: string; // Keep as string for form input
+  loanTenure: string; // Keep as string for form input
+  employmentStatus: string;
+  reasonForLoan: string;
+  employmentAddress: string;
+  hasReadInformation: boolean;
+  agreeToDisclosure: boolean;
+}
+
+// Define the LoanData interface for submission
+interface LoanData {
+  userId: string;
+  fullName: string;
+  loanAmount: number;
+  loanTenure: number;
+  employmentStatus: string;
+  reasonForLoan: string;
+  employmentAddress: string;
+  hasReadInformation: boolean;
+  agreeToDisclosure: boolean;
+}
+
 const LoanApplicationForm = () => {
-  const { control, handleSubmit, formState: { errors } } = useForm({
-      defaultValues: {
-        userId:'',
+  const { control, handleSubmit, formState: { errors } } = useForm<LoanApplicationData>({
+    defaultValues: {
+      userId: '',
       fullName: '',
       loanAmount: '',
       loanTenure: '',
@@ -30,14 +57,21 @@ const LoanApplicationForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-    const { IsUserLoggedIn } = useContext(AdminContext);
-    const userId = IsUserLoggedIn._id;
-    const onSubmit = async (data) => {
-      
+  const { IsUserLoggedIn } = useContext(AdminContext);
+  const userId = IsUserLoggedIn?._id || '';
+
+  const onSubmit = async (data: LoanApplicationData) => {
     setLoading(true);
-        try {
-            data.userId = userId;
-      await submitLoanApplication(data);
+    try {
+      // Convert loanAmount and loanTenure to numbers before submitting
+      const loanData: LoanData = {
+        ...data,
+        userId,
+        loanAmount: Number(data.loanAmount),
+        loanTenure: Number(data.loanTenure),
+      };
+
+      await submitLoanApplication(loanData);
       setOpenSnackbar(true);
     } catch (error) {
       console.error('Error submitting loan application:', error);

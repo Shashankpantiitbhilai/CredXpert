@@ -38,7 +38,7 @@ function Login() {
         console.log(response);
       // Handle based on backend response status
       if (response?.status === 200) {
-        const user = response.data.user;
+        const user = response.user;
 
         // Check if the user is blocked
        

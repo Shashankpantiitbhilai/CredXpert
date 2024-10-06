@@ -41,26 +41,39 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   const { IsUserLoggedIn } = useContext(AdminContext);
-  const userId = IsUserLoggedIn?._id;
+  
+ let userId = IsUserLoggedIn?._id;
+  if (!userId)
+  {
+    userId = "";
+  }
 
-  useEffect(() => {
-    const fetchLoans = async () => {
-      setLoading(true);
-      try {
-        const data: GetAllLoansResponse = await getAllLoans(userId);
+ useEffect(() => {
+  const fetchLoans = async () => {
+    setLoading(true);
+    try {
+
+        
+      const data: GetAllLoansResponse | null = await getAllLoans(userId);
+      
+      if (data) {
         setLoans(data.loans);
-      } catch (error) {
-        setError('Failed to fetch loans. Please try again later.');
-        console.error(error)
-      } finally {
-        setLoading(false);
+      } else {
+        setError('No loans found or failed to fetch loans.');
       }
-    };
-
-    if (userId) {
-      fetchLoans();
+    } catch (error) {
+      setError('Failed to fetch loans. Please try again later.');
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-  }, [userId]);
+  };
+
+  if (userId) {
+    fetchLoans();
+  }
+}, [userId]);
+
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
