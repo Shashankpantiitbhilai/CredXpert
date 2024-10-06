@@ -30,16 +30,26 @@ app.use(cors({
 }));
 
 // Session handling
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: mode === 'production', 
-    httpOnly: true,
-    sameSite: mode === 'production' ? 'none' : 'lax',
-  }
-}));
+if (mode === "production") {
+  app.use(session({
+    secret: process.env.SESSION_SECRET ||"keyboard cat", // Use environment variable for session secret
+    saveUninitialized: true, // Do not save uninitialized sessions
+    resave: false,
+    proxy: true,
+    cookie: {
+      secure: true, // Ensure cookies are only sent over HTTPS
+      httpOnly: true, // Cookies are not accessible via JavaScript
+      sameSite: 'none' // Allow cross-site cookies
+    }
+  }));
+}
+else {
+  app.use(session({
+    secret: process.env.SESSION_SECRET || "keyboard cat", // Use environment variable for session secret
+    saveUninitialized: true, // Do not save uninitialized sessions
+    resave: false,
+  }))
+}
 
 // Initialize Passport
 app.use(passport.initialize());
