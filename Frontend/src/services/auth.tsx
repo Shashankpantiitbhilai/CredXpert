@@ -35,7 +35,7 @@ export async function registerUser(email, password) {
      console.log(response,"response")
     return response;
   } catch (error) {
-    if (error.response && error.response.status === 400) {
+    if (error?.response && error?.response?.status === 400) {
       return { message: "User already exists" };
     } else {
       return null;

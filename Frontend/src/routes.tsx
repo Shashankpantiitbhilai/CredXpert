@@ -5,7 +5,7 @@ import Login from "./Auth/login";
 import Register from "./Auth/register";
 import ProtectedUser from "./protectedUser"
 import LoanApplicationForm from "./Form/form";
-import UserDashboard from "./userDashboard/userDashBoard.tsx"
+import UserDashboard from "./userDashboard/userDashBoard"
 const Main = () => {
     
 

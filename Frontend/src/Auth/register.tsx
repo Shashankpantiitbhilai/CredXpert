@@ -1,19 +1,25 @@
 import { Button, TextField, Container, Box, Typography } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { registerUser } from "../services/auth"; // Make sure to implement this function
+import { useForm, SubmitHandler } from "react-hook-form";
+import { registerUser } from "../services/auth"; // Ensure this function is correctly typed
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { styled } from "@mui/system";
 import { useNavigate } from "react-router-dom";
 
-const RegistrationContainer = styled(Container)({
+// Define an interface for form data
+interface RegistrationFormData {
+  email: string;
+  password: string;
+}
+
+const RegistrationContainer = styled(Container)(() => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
   height: "100vh",
-});
+}));
 
-const RegistrationForm = styled(Box)({
+const RegistrationForm = styled(Box)(() => ({
   width: "100%",
   maxWidth: "400px",
   padding: "20px",
@@ -21,25 +27,26 @@ const RegistrationForm = styled(Box)({
   borderRadius: "8px",
   backgroundColor: "#fff",
   textAlign: "center",
-});
+}));
 
 function Registration() {
-  const form = useForm();
+  const form = useForm<RegistrationFormData>(); // Specify the form data type
   const { register, handleSubmit, formState, setError } = form;
   const { errors } = formState;
   const navigate = useNavigate();
 
-  const onSubmit = async (data) => {
+  // Define the onSubmit function with proper typing
+  const onSubmit: SubmitHandler<RegistrationFormData> = async (data) => {
     try {
       const response = await registerUser(data.email, data.password);
-        console.log(response);
+      console.log(response);
       // Handle based on backend response status
-      if (response.status === 201) {
+      if (response?.status === 201) {
         toast.success("Registration successful", { autoClose: 2000 });
         navigate("/"); // Redirect to login after successful registration
-      } else if (response.status === 400) {
+      } else if (response?.status === 400) {
         setError("email", { type: "manual", message: response.data.message });
-        toast.error(response.data.message, { autoClose: 2000 });
+        toast.error(response?.data?.message, { autoClose: 2000 });
       } else {
         toast.error("An unknown error occurred", { autoClose: 2000 });
       }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import  { useEffect, useState, useContext } from 'react';
 import { 
   Typography, 
   Box, 
@@ -16,10 +16,29 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getAllLoans } from '../services/utils'; // Adjust the import path accordingly
 import { AdminContext } from '../App';
 
-const Dashboard = () => {
-  const [loans, setLoans] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+// Define types for Loan data
+interface Loan {
+  _id: string;
+  loanAmount: number;
+  fullName: string;
+  loanTenure: number;
+  employmentStatus: string;
+  reasonForLoan: string;
+  employmentAddress: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Define the type for getAllLoans response
+interface GetAllLoansResponse {
+  loans: Loan[];
+}
+
+const Dashboard: React.FC = () => {
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
   const { IsUserLoggedIn } = useContext(AdminContext);
   const userId = IsUserLoggedIn?._id;
@@ -28,19 +47,22 @@ const Dashboard = () => {
     const fetchLoans = async () => {
       setLoading(true);
       try {
-        const data = await getAllLoans(userId);
+        const data: GetAllLoansResponse = await getAllLoans(userId);
         setLoans(data.loans);
       } catch (error) {
         setError('Failed to fetch loans. Please try again later.');
+        console.error(error)
       } finally {
         setLoading(false);
       }
     };
 
-    fetchLoans();
+    if (userId) {
+      fetchLoans();
+    }
   }, [userId]);
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'approved':
         return 'success';
@@ -53,7 +75,7 @@ const Dashboard = () => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
