@@ -40,9 +40,9 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  const { IsUserLoggedIn } = useContext(AdminContext);
+  const { user } = useContext(AdminContext);
   
- let userId = IsUserLoggedIn?._id;
+ let userId = user?._id;
   if (!userId)
   {
     userId = "";

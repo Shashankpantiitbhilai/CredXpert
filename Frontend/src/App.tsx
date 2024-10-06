@@ -2,57 +2,48 @@ import "./App.css";
 import { useEffect, useState, createContext, Dispatch, SetStateAction } from "react";
 import { BrowserRouter } from "react-router-dom";
 import Main from "./routes";
-import { fetchCredentials } from "./services/auth";
+import { fetchCredentials, AuthResponse } from "./services/auth";
 import { CircularProgress, Container } from "@mui/material";
 
-// Define the shape of the user object (adjust based on what your user data looks like)
-interface User {
-  _id: string;
-  name: string;
- 
-  // Add other user details here
-}
-
-// Define the shape of the context
 interface AdminContextType {
-  IsUserLoggedIn: User | null; // Change to User | null
-  setIsUserLoggedIn: Dispatch<SetStateAction<User | null>>; // Update setter type accordingly
+  user: AuthResponse['user'] | null;
+  setUser: Dispatch<SetStateAction<AuthResponse['user'] | null>>;
 }
 
-// Create contexts with proper typing
 const AdminContext = createContext<AdminContextType>({
-  IsUserLoggedIn: null, // Start with null for no user logged in
-  setIsUserLoggedIn: () => null, // Provide a default no-op function for setIsUserLoggedIn
+  user: null,
+  setUser: () => null,
 });
 
 function App() {
-  const [IsUserLoggedIn, setIsUserLoggedIn] = useState<User | null>(null); // Update type for the user object
+  const [user, setUser] = useState<AuthResponse['user'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
 
   useEffect(() => {
     setIsLoading(true);
-    fetchCredentials().then((User) => {
-      if (User) {
-        setIsUserLoggedIn(User); // Set the user object
-      } else {
-        setIsUserLoggedIn(null); // If no user, set null
+    fetchCredentials().then((response) => {
+      if (response.user) {
+        setUser(response.user);
       }
       setIsLoading(false);
     });
+
+  
   }, []);
 
   return (
-    <AdminContext.Provider value={{ IsUserLoggedIn, setIsUserLoggedIn }}>
+    <AdminContext.Provider value={{ user, setUser }}>
       {isLoading ? (
         <Container
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            height: "100vh", // Full height for centering
+            height: "100vh",
           }}
         >
-          <CircularProgress /> {/* Show the loader */}
+          <CircularProgress />
         </Container>
       ) : (
         <BrowserRouter>

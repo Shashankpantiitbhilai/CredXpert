@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { AdminContext } from "../App";
 import { Button, TextField, Container, Box, Typography } from "@mui/material";
-import { loginUser } from "../services/auth"; // Assuming this service function is implemented
+import { loginUser } from "../services/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
@@ -29,27 +29,18 @@ function Login() {
   const form = useForm();
   const { register, handleSubmit, formState, setError, clearErrors } = form;
   const { errors } = formState;
-  const { setIsUserLoggedIn } = useContext(AdminContext);
+  const { setUser } = useContext(AdminContext);
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     try {
-      const response = await loginUser(data.email, data.password); // Service that makes backend call
-        console.log(response);
-      // Handle based on backend response status
-      if (response?.status === 200) {
+      const response = await loginUser(data.email, data.password);
+      console.log(response);
+      if (response?.user) {
         const user = response.user;
-
-        // Check if the user is blocked
-       
-
-        setIsUserLoggedIn(user);
-        toast.success("Login successful", { autoClose: 2000 });
-
-        // Redirect based on user role
-        if (user.role === "admin") {
-          navigate("/admin_home");
-        } else {
+        if(user) {
+          setUser(user);
+          toast.success("Login successful", { autoClose: 2000 });
           navigate("/");
         }
       } else if (response?.status === 401) {
@@ -71,64 +62,66 @@ function Login() {
   return (
     <LoginContainer>
       <ToastContainer />
-      <LoginForm component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Typography variant="h4" gutterBottom>
-          Sign In
-        </Typography>
+      <LoginForm>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <Typography variant="h4" gutterBottom>
+            Sign In
+          </Typography>
 
-        <TextField
-          fullWidth
-          label="Email"
-          margin="normal"
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-              message: "Invalid email address",
-            },
-          })}
-          error={!!errors.email}
-          helperText={errors.email?.message}
-        />
+          <TextField
+            fullWidth
+            label="Email"
+            margin="normal"
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                message: "Invalid email address",
+              },
+            })}
+            error={!!errors.email}
+            helperText={errors.email?.message}
+          />
 
-        <TextField
-          fullWidth
-          label="Password"
-          type="password"
-          margin="normal"
-          {...register("password", {
-            required: "Password is required",
-            minLength: {
-              value: 8,
-              message: "Password must be at least 8 characters",
-            },
-            maxLength: {
-              value: 16,
-              message: "Password must not exceed 16 characters",
-            },
-          })}
-          error={!!errors.password}
-          helperText={errors.password?.message}
-        />
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            margin="normal"
+            {...register("password", {
+              required: "Password is required",
+              minLength: {
+                value: 8,
+                message: "Password must be at least 8 characters",
+              },
+              maxLength: {
+                value: 16,
+                message: "Password must not exceed 16 characters",
+              },
+            })}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+          />
 
-        {errors.login && (
-          <Typography color="error">{errors.login.message}</Typography>
-        )}
+          {errors.login && (
+            <Typography color="error">{errors.login.message}</Typography>
+          )}
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2 }}
-        >
-          Sign In
-        </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Sign In
+          </Button>
 
-        <Typography variant="body2" sx={{ mt: 2 }}>
-          Don't have an account?
-          <Link to="/register"> Register</Link>
-        </Typography>
+          <Typography variant="body2" sx={{ mt: 2 }}>
+            Don't have an account?
+            <Link to="/register"> Register</Link>
+          </Typography>
+        </Box>
       </LoginForm>
     </LoginContainer>
   );
