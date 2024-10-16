@@ -28,8 +28,7 @@ import {
 } from '@mui/material';
 import { getAllApplications, reviewLoan } from '../services/utils';
 import { AttachMoney, People, LocalAtm } from '@mui/icons-material';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+
 import { Loan, LoanStatus } from "../types"; // Import types
 
 type DashboardCardProps = {
@@ -127,44 +126,14 @@ const VerifierDashboard = () => {
   const borrowers = approvedLoans.length; // Total approved borrowers
   const cashDisbursed = approvedLoans.reduce((acc, app) => acc + app.loanAmount, 0); // Total approved cash amount
 
-  // Function to generate PDF report
-  const generateReport = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.text('Loan Applications Report', 14, 22);
-
-    // Prepare data for the table
-    const tableData = applications.map(app => [
-      app.fullName,
-      app.loanAmount,
-      app.status,
-      app.loanTenure,
-      app.employmentStatus
-    ]);
-
-    // Add summary to the report
-    doc.text(`Total Loans: ${totalLoans}`, 14, 40);
-    doc.text(`Total Borrowers: ${borrowers}`, 14, 50);
-    doc.text(`Total Cash Disbursed: $${cashDisbursed.toLocaleString()}`, 14, 60);
-
-    // Add table to the PDF
-    autoTable(doc, {
-      head: [['Name', 'Amount', 'Status', 'Loan Tenure (months)', 'Employment Status']],
-      body: tableData,
-      startY: 70,
-    });
-
-    doc.save('loan-applications-report.pdf'); // Save the PDF
-  };
+ 
 
   return (
     <Box sx={{ margin:5 }}>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6">Verifier Dashboard</Typography>
-          <Button onClick={generateReport} color="inherit" sx={{ ml: 'auto' }}>
-            Generate Report
-          </Button>
+         
         </Toolbar>
       </AppBar>
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -190,7 +159,7 @@ const VerifierDashboard = () => {
                       <TableCell>Name</TableCell>
                       <TableCell>Amount</TableCell>
                       <TableCell>Status</TableCell>
-                      <TableCell>Loan Tenure</TableCell>
+                    
                       <TableCell>Employment Status</TableCell>
                       <TableCell>Action</TableCell>
                     </TableRow>
@@ -209,7 +178,7 @@ const VerifierDashboard = () => {
                             }}
                           />
                         </TableCell>
-                        <TableCell>{app.loanTenure} months</TableCell>
+                       
                         <TableCell>{app.employmentStatus}</TableCell>
                         <TableCell>
                           <Button

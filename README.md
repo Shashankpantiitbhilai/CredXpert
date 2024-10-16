@@ -1,2 +1,1 @@
-# CreditSea
-# CreditSea
+[[](https://github.com/users/Shashankpantiitbhilai/emails/340508346/confirm_verification/e782435c2a0e25015b4c7adfbd8cc6b6a68e3718?utm_campaign=github-email-verification&utm_content=html&utm_medium=email&utm_source=verification-email)](https://github.com/users/Shashankpantiitbhilai/emails/340508346/confirm_verification/e782435c2a0e25015b4c7adfbd8cc6b6a68e3718?utm_campaign=github-email-verification&utm_content=html&utm_medium=email&utm_source=verification-email)

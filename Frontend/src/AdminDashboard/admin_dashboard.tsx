@@ -6,8 +6,7 @@ import {
   DialogContent, DialogContentText, Select, MenuItem, FormControl, InputLabel, Chip,
   Tab, Tabs
 } from '@mui/material';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+
 import { getAllApplications, reviewLoan, getAllUsers, deleteUser, updateUserRole } from '../services/utils';
 import { Loan, LoanStatus,User } from "../types";
 
@@ -103,62 +102,11 @@ const AdminDashboard = () => {
   const approvedLoans = applications.filter(app => app.status === 'approved');
   const borrowers = approvedLoans.length;
   const cashDisbursed = approvedLoans.reduce((acc, app) => acc + app.loanAmount, 0);
-  const totalUsers = users.length;
-  const totalAdmins = users.filter(user => user.role === 'admin').length;
-  const totalVerifiers = users.filter(user => user.role === 'verifier').length;
+ 
+ 
+ 
 
-  const generateReport = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.text('Admin Report', 14, 22);
-
-    // Add summary statistics
-    doc.setFontSize(14);
-    doc.text('Summary Statistics', 14, 40);
-    const summaryData = [
-      ['Total Loans', totalLoans.toString()],
-      ['Approved Borrowers', borrowers.toString()],
-      ['Total Cash Disbursed', `$${cashDisbursed.toLocaleString()}`],
-      ['Total Users', totalUsers.toString()],
-      ['Total Admins', totalAdmins.toString()],
-      ['Total Verifiers', totalVerifiers.toString()],
-    ];
-    autoTable(doc, {
-      head: [['Metric', 'Value']],
-      body: summaryData,
-      startY: 50,
-    });
-
-    // Add loan applications table
-    doc.addPage();
-    doc.setFontSize(14);
-    doc.text('Loan Applications', 14, 20);
-    const loanData = applications.map(app => [
-      app.fullName,
-      `$${app.loanAmount.toLocaleString()}`,
-      app.status,
-      `${app.loanTenure} months`,
-      app.employmentStatus
-    ]);
-    autoTable(doc, {
-      head: [['Name', 'Amount', 'Status', 'Loan Tenure', 'Employment Status']],
-      body: loanData,
-      startY: 30,
-    });
-
-    // Add users table
-    doc.addPage();
-    doc.setFontSize(14);
-    doc.text('User Management', 14, 20);
-    const userData = users.map(user => [user.email, user.role]);
-    autoTable(doc, {
-      head: [['Email', 'Role']],
-      body: userData,
-      startY: 30,
-    });
-
-    doc.save('admin-report.pdf');
-  };
+ 
 
   return (
     <Box sx={{ flexGrow: 1,marginTop:5 }}>
@@ -167,9 +115,7 @@ const AdminDashboard = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Admin Dashboard
           </Typography>
-          <Button color="inherit" onClick={() => setOpenReportDialog(true)}>
-            Generate Report
-          </Button>
+       
         </Toolbar>
       </AppBar>
 
@@ -205,42 +151,14 @@ const AdminDashboard = () => {
               </Typography>
             </Paper>
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 140, backgroundColor: '#2196F3', color: 'white' }}>
-              <Typography component="h2" variant="h6" gutterBottom>
-                Total Users
-              </Typography>
-              <Typography component="p" variant="h4">
-                {totalUsers}
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 140, backgroundColor: '#FFC107', color: 'white' }}>
-              <Typography component="h2" variant="h6" gutterBottom>
-                Total Admins
-              </Typography>
-              <Typography component="p" variant="h4">
-                {totalAdmins}
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 140, backgroundColor: '#673AB7', color: 'white' }}>
-              <Typography component="h2" variant="h6" gutterBottom>
-                Total Verifiers
-              </Typography>
-              <Typography component="p" variant="h4">
-                {totalVerifiers}
-              </Typography>
-            </Paper>
-          </Grid>
+        
+        
         </Grid>
 
         <Box sx={{ width: '100%', typography: 'body1', mt: 4 }}>
           <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)} aria-label="admin tabs">
             <Tab label="Loan Applications" />
-            <Tab label="User Management" />
+           
           </Tabs>
         </Box>
 
@@ -296,9 +214,7 @@ const AdminDashboard = () => {
 
         {tabValue === 1 && (
           <Paper sx={{ p: 2, mt: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              User Management
-            </Typography>
+         
             <TableContainer>
               <Table>
                 <TableHead>
@@ -426,7 +342,7 @@ const AdminDashboard = () => {
         <DialogActions>
           <Button onClick={() => setOpenReportDialog(false)}>Cancel</Button>
           <Button onClick={() => {
-            generateReport();
+           
             setOpenReportDialog(false);
           }} color="primary">Download Report</Button>
         </DialogActions>
