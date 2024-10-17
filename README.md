@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-[[](https://github.com/users/Shashankpantiitbhilai/emails/340508346/confirm_verification/e782435c2a0e25015b4c7adfbd8cc6b6a68e3718?utm_campaign=github-email-verification&utm_content=html&utm_medium=email&utm_source=verification-email)](https://github.com/users/Shashankpantiitbhilai/emails/340508346/confirm_verification/e782435c2a0e25015b4c7adfbd8cc6b6a68e3718?utm_campaign=github-email-verification&utm_content=html&utm_medium=email&utm_source=verification-email)
-=======
+
 # Loan Manager Application
 
 This project is a **Loan Manager Application** built for CreditSea's Full Stack Intern assignment. The primary goal of this application is to integrate the user application form with a dashboard that displays statistics, using **TypeScript** and **Node.js** for backend development, and **MongoDB** for managing user data.
