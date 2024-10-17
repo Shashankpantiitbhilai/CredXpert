@@ -72,7 +72,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <AppBar position="static" elevation={0} sx={{ bgcolor: 'green' }}>
+      <AppBar position="static" elevation={0} sx={{ bgcolor: '#1976d2' }}> {/* Updated to bluish color */}
         <Toolbar>
           {isSmallScreen && (
             <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={toggleDrawer(true)} sx={{ mr: 2 }}>
@@ -92,7 +92,7 @@ const Navbar: React.FC = () => {
               sx={{
                 '&:hover': {
                   bgcolor: 'white', // Change background to white on hover
-                  color: 'green',   // Optional: change text color to green
+                  color: '#1976d2',   // Optional: change text color to match bluish theme
                 },
               }}
             >
@@ -105,7 +105,7 @@ const Navbar: React.FC = () => {
             sx={{
               '&:hover': {
                 bgcolor: 'white', // Change background to white on hover
-                color: 'green',   // Optional: change text color to green
+                color: '#1976d2',   // Optional: change text color to match bluish theme
               },
             }}
           >

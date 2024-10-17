@@ -1,22 +1,12 @@
-// src/VerifierDashboard/verify_dashboard.tsx
 import { useState, useEffect, MouseEvent } from 'react';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Container,
-  Grid,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
   Box,
+  Container,
+  Typography,
+  Grid,
   Card,
   CardContent,
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -24,42 +14,233 @@ import {
   DialogTitle,
   Menu,
   MenuItem,
-  Chip
+  IconButton,
+  Stack,
+  Avatar,
+  Tooltip,
+  LinearProgress,
+  Paper,
+  Fade
 } from '@mui/material';
+import {
+  BarChart,
+  People,
+  AccountBalance,
+  MoreVert,
+  FileDownload,
+  Check,
+  Close,
+  WatchLater,
+  Update,
+  TrendingUp
+} from '@mui/icons-material';
 import { getAllApplications, reviewLoan } from '../services/utils';
-import { AttachMoney, People, LocalAtm } from '@mui/icons-material';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { Loan, LoanStatus } from "../types";
 
-import { Loan, LoanStatus } from "../types"; // Import types
-
-type DashboardCardProps = {
-  icon: JSX.Element;
-  title: string;
-  value: number | string;
-  color: string;
+// Custom theme colors
+const theme = {
+  primary: '#1976d2',
+  primaryLight: '#42a5f5',
+  primaryDark: '#1565c0',
+  secondary: '#90caf9',
+  success: '#4caf50',
+  warning: '#ff9800',
+  error: '#f44336',
+  info: '#2196f3',
+  background: '#f5f9ff'
 };
 
-const DashboardCard = ({ icon, title, value, color }: DashboardCardProps) => (
-  <Card sx={{ height: '100%', backgroundColor: color }}>
-    <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
-      {icon}
-      <Box sx={{ ml: 2 }}>
-        <Typography variant="h6" component="div" color="white">
-          {title}
-        </Typography>
-        <Typography variant="h4" component="div" color="white">
+const statusConfig: { [key in LoanStatus]: { icon: JSX.Element; color: string; label: string } } = {
+  pending: { icon: <WatchLater />, color: theme.warning, label: 'Pending' },
+  approved: { icon: <Check />, color: theme.success, label: 'Approved' },
+  rejected: { icon: <Close />, color: theme.error, label: 'Rejected' },
+  under_review: { icon: <Update />, color: theme.info, label: 'Under Review' }
+};
+
+const StatCard = ({ 
+  icon, 
+  title, 
+  value, 
+  trend, 
+  color 
+}: { 
+  icon: JSX.Element; 
+  title: string; 
+  value: string | number;
+  trend: string;
+  color: string;
+}) => (
+  <Fade in={true} timeout={500}>
+    <Card 
+      sx={{ 
+        height: '100%',
+        background: `linear-gradient(135deg, ${color} 0%, ${theme.primaryDark} 100%)`,
+        color: 'white',
+        transition: 'transform 0.3s ease-in-out',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+        }
+      }}
+    >
+      <CardContent>
+        <Box display="flex" alignItems="center" mb={2}>
+          <Avatar 
+            sx={{ 
+              bgcolor: 'rgba(255, 255, 255, 0.2)',
+              mr: 2,
+              p: 1
+            }}
+          >
+            {icon}
+          </Avatar>
+          <Typography variant="h6">
+            {title}
+          </Typography>
+        </Box>
+        <Typography variant="h3" component="div" fontWeight="bold" mb={1}>
           {value}
         </Typography>
-      </Box>
-    </CardContent>
-  </Card>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <TrendingUp fontSize="small" />
+          <Typography variant="body2">
+            {trend}
+          </Typography>
+        </Stack>
+      </CardContent>
+    </Card>
+  </Fade>
 );
 
-const statusColors: { [key in LoanStatus]: string } = {
-  pending: '#FFA000',
-  approved: '#4CAF50',
-  rejected: '#F44336',
-  under_review: '#2196F3'
-};
+const LoanCard = ({ 
+  loan, 
+  onReviewClick 
+}: { 
+  loan: Loan; 
+  onReviewClick: (event: MouseEvent<HTMLButtonElement>) => void;
+}) => (
+  <Fade in={true} timeout={500}>
+    <Paper 
+      elevation={2}
+      sx={{
+        mb: 2,
+        p: 2,
+        transition: 'all 0.3s ease-in-out',
+        '&:hover': {
+          transform: 'translateX(8px)',
+          boxShadow: 6,
+        }
+      }}
+    >
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Avatar 
+            sx={{ 
+              bgcolor: theme.primary,
+              width: 50,
+              height: 50,
+              fontSize: '1.5rem'
+            }}
+          >
+            {loan.fullName[0]}
+          </Avatar>
+          <Box>
+            <Typography variant="h6" color={theme.primaryDark}>
+              {loan.fullName}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {loan.employmentStatus}
+            </Typography>
+          </Box>
+        </Stack>
+        <IconButton 
+          onClick={onReviewClick}
+          sx={{ 
+            '&:hover': { 
+              bgcolor: theme.secondary,
+              transform: 'rotate(180deg)',
+              transition: 'transform 0.3s ease-in-out'
+            }
+          }}
+        >
+          <MoreVert />
+        </IconButton>
+      </Box>
+
+      <Grid container spacing={3} mt={1}>
+        <Grid item xs={12} md={4}>
+          <Box 
+            sx={{ 
+              p: 2, 
+              bgcolor: 'rgba(25, 118, 210, 0.05)',
+              borderRadius: 1
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              Amount
+            </Typography>
+            <Typography variant="h6" color={theme.primary}>
+              ${loan.loanAmount.toLocaleString()}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Box 
+            sx={{ 
+              p: 2, 
+              bgcolor: 'rgba(25, 118, 210, 0.05)',
+              borderRadius: 1
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              Tenure
+            </Typography>
+            <Typography variant="h6" color={theme.primary}>
+              {loan.loanTenure} months
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Box 
+            sx={{ 
+              p: 2, 
+              bgcolor: 'rgba(25, 118, 210, 0.05)',
+              borderRadius: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            <Box 
+              sx={{ 
+                bgcolor: statusConfig[loan.status].color,
+                p: 1,
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              {statusConfig[loan.status].icon}
+            </Box>
+            <Box>
+              <Typography variant="body2" color="text.secondary">
+                Status
+              </Typography>
+              <Typography 
+                variant="h6" 
+                sx={{ color: statusConfig[loan.status].color }}
+              >
+                {statusConfig[loan.status].label}
+              </Typography>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
+    </Paper>
+  </Fade>
+);
 
 const VerifierDashboard = () => {
   const [applications, setApplications] = useState<Loan[]>([]);
@@ -67,6 +248,7 @@ const VerifierDashboard = () => {
   const [selectedStatus, setSelectedStatus] = useState<LoanStatus | ''>('');
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -76,11 +258,13 @@ const VerifierDashboard = () => {
           ...loan,
           status: ['pending', 'approved', 'rejected', 'under_review'].includes(loan.status)
             ? (loan.status as LoanStatus)
-            : 'pending' // Fallback to 'pending' if status is unknown
+            : 'pending'
         }));
         setApplications(loans);
       } catch (error) {
         console.error('Error fetching applications:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -92,10 +276,6 @@ const VerifierDashboard = () => {
     setSelectedLoanId(loanId);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleStatusSelect = (status: LoanStatus) => {
     setSelectedStatus(status);
     setAnchorEl(null);
@@ -103,135 +283,227 @@ const VerifierDashboard = () => {
   };
 
   const handleConfirmStatusChange = async () => {
-    if (selectedStatus) { // Ensure status is not an empty string
+    if (selectedStatus) {
       try {
         await reviewLoan(selectedLoanId, selectedStatus);
         setOpenDialog(false);
         setApplications((prevApplications) =>
           prevApplications.map((app) =>
-            app._id === selectedLoanId ? { ...app, status: selectedStatus as LoanStatus } : app
+            app._id === selectedLoanId ? { ...app, status: selectedStatus } : app
           )
         );
       } catch (error) {
         console.error('Error reviewing loan:', error);
       }
-    } else {
-      console.error('Invalid status selected');
     }
   };
 
-  // Calculate totals based on approved loans
-  const totalLoans = applications.length; // Total applications
+  const totalLoans = applications.length;
   const approvedLoans = applications.filter(app => app.status === 'approved');
-  const borrowers = approvedLoans.length; // Total approved borrowers
-  const cashDisbursed = approvedLoans.reduce((acc, app) => acc + app.loanAmount, 0); // Total approved cash amount
+  const borrowers = approvedLoans.length;
+  const cashDisbursed = approvedLoans.reduce((acc, app) => acc + app.loanAmount, 0);
 
- 
+  const generateReport = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(20);
+    doc.text('Loan Applications Report', 14, 22);
+
+    const tableData = applications.map(app => [
+      app.fullName,
+      app.loanAmount,
+      app.status,
+      app.loanTenure,
+      app.employmentStatus
+    ]);
+
+    doc.text(`Total Loans: ${totalLoans}`, 14, 40);
+    doc.text(`Total Borrowers: ${borrowers}`, 14, 50);
+    doc.text(`Total Disbursed: $${cashDisbursed.toLocaleString()}`, 14, 60);
+
+    autoTable(doc, {
+      head: [['Name', 'Amount', 'Status', 'Tenure', 'Employment']],
+      body: tableData,
+      startY: 70,
+    });
+
+    doc.save('loan-applications-report.pdf');
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ width: '100%', mt: 4 }}>
+        <LinearProgress sx={{ bgcolor: theme.secondary }} />
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ margin:5 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6">Verifier Dashboard</Typography>
-         
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Grid container spacing={3}>
+    <Box sx={{ bgcolor: theme.background, minHeight: '100vh', py: 4 }}>
+      <Container maxWidth="lg">
+        <Box 
+          display="flex" 
+          justifyContent="space-between" 
+          alignItems="center" 
+          mb={4}
+        >
+          <Typography 
+            variant="h3" 
+            fontWeight="bold"
+            sx={{ 
+              color: theme.primaryDark,
+              borderBottom: `4px solid ${theme.primary}`,
+              pb: 1
+            }}
+          >
+            Loan Verifier Dashboard
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<FileDownload />}
+            onClick={generateReport}
+            sx={{
+              bgcolor: theme.primary,
+              '&:hover': {
+                bgcolor: theme.primaryDark,
+              },
+              px: 3,
+              py: 1.5
+            }}
+          >
+            Export Report
+          </Button>
+        </Box>
+
+        <Grid container spacing={3} mb={4}>
           <Grid item xs={12} md={4}>
-            <DashboardCard icon={<AttachMoney sx={{ fontSize: 40, color: 'white' }} />} title="LOANS" value={totalLoans} color="#1b5e20" />
+            <StatCard 
+              icon={<BarChart />}
+              title="Total Applications"
+              value={totalLoans}
+              trend="+12.5% this month"
+              color={theme.primary}
+            />
           </Grid>
           <Grid item xs={12} md={4}>
-            <DashboardCard icon={<People sx={{ fontSize: 40, color: 'white' }} />} title="BORROWERS" value={borrowers} color="#0d47a1" />
+            <StatCard 
+              icon={<People />}
+              title="Active Borrowers"
+              value={borrowers}
+              trend="+5.8% this month"
+              color={theme.primaryLight}
+            />
           </Grid>
           <Grid item xs={12} md={4}>
-            <DashboardCard icon={<LocalAtm sx={{ fontSize: 40, color: 'white' }} />} title="CASH DISBURSED" value={`$${cashDisbursed.toLocaleString()}`} color="#b71c1c" />
-          </Grid>
-          <Grid item xs={12}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                Loan Applications
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Amount</TableCell>
-                      <TableCell>Status</TableCell>
-                    
-                      <TableCell>Employment Status</TableCell>
-                      <TableCell>Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {applications.map((app) => (
-                      <TableRow key={app._id}>
-                        <TableCell>{app.fullName}</TableCell>
-                        <TableCell>${app.loanAmount}</TableCell>
-                        <TableCell>
-                          <Chip
-                            label={app.status}
-                            sx={{
-                              backgroundColor: statusColors[app.status],
-                              color: 'white'
-                            }}
-                          />
-                        </TableCell>
-                       
-                        <TableCell>{app.employmentStatus}</TableCell>
-                        <TableCell>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={(event) => handleReviewClick(event, app._id)}
-                          >
-                            Review
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
+            <StatCard 
+              icon={<AccountBalance />}
+              title="Total Disbursed"
+              value={`$${cashDisbursed.toLocaleString()}`}
+              trend="+15.3% this month"
+              color={theme.secondary}
+            />
           </Grid>
         </Grid>
+
+        <Typography 
+          variant="h4" 
+          fontWeight="bold" 
+          mb={3}
+          sx={{ color: theme.primaryDark }}
+        >
+          Loan Applications
+        </Typography>
+
+        <Box>
+          {applications.map((app) => (
+            <LoanCard
+              key={app._id}
+              loan={app}
+              onReviewClick={(event) => handleReviewClick(event, app._id)}
+            />
+          ))}
+        </Box>
+
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={() => setAnchorEl(null)}
+          PaperProps={{
+            elevation: 3,
+            sx: {
+              mt: 1,
+              '& .MuiMenuItem-root': {
+                py: 1.5
+              }
+            }
+          }}
+        >
+          {Object.entries(statusConfig).map(([status, config]) => (
+            <MenuItem 
+              key={status}
+              onClick={() => handleStatusSelect(status as LoanStatus)}
+              sx={{
+                '&:hover': {
+                  bgcolor: 'rgba(25, 118, 210, 0.08)'
+                }
+              }}
+            >
+              <Box 
+                component="span" 
+                sx={{ 
+                  color: config.color,
+                  mr: 1,
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                {config.icon}
+              </Box>
+              {config.label}
+            </MenuItem>
+          ))}
+        </Menu>
+
+        <Dialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          PaperProps={{
+            elevation: 24,
+            sx: { borderRadius: 2 }
+          }}
+        >
+          <DialogTitle sx={{ bgcolor: theme.primary, color: 'white' }}>
+            Confirm Status Change
+          </DialogTitle>
+          <DialogContent sx={{ mt: 2 }}>
+            <DialogContentText>
+              Are you sure you want to change the status of this loan to "
+              {selectedStatus && statusConfig[selectedStatus].label}"?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button 
+              onClick={() => setOpenDialog(false)}
+              sx={{ color: theme.primary }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleConfirmStatusChange}
+              variant="contained"
+              sx={{ 
+                bgcolor: theme.primary,
+                '&:hover': {
+                  bgcolor: theme.primaryDark
+                }
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
-
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={() => handleStatusSelect('pending')}>Pending</MenuItem>
-        <MenuItem onClick={() => handleStatusSelect('approved')}>Approved</MenuItem>
-        <MenuItem onClick={() => handleStatusSelect('rejected')}>Rejected</MenuItem>
-        <MenuItem onClick={() => handleStatusSelect('under_review')}>Under Review</MenuItem>
-      </Menu>
-
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-      >
-        <DialogTitle>Confirm Status Change</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to change the status of this loan to "{selectedStatus}"?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirmStatusChange} color="primary">
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };
 
-export default
- VerifierDashboard;
+export default VerifierDashboard;
