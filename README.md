@@ -119,4 +119,4 @@ The dashboard provides real-time statistics about the loan applications submitte
 
 
 
->>>>>>> 9231a268b0a0870b251c223ea7cb928a05322407
+
